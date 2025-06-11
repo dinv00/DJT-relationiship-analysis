@@ -1,0 +1,405 @@
+{
+  "title": "Donald J. Trump relationship analysis",
+  "version": "2.4",
+  "settings": {
+    "pagenumber": 0,
+    "editable": true,
+    "fullscreenEnabled": false,
+    "parameters": {
+      "neodash_person_id": "",
+      "neodash_person_id_display": "",
+      "neodash_person_name_display": "Donald Trump",
+      "neodash_client_name": "APPLE INC.",
+      "neodash_client_name_display": "APPLE INC.",
+      "neodash_return_id": "",
+      "neodash_return_id_display": "",
+      "undefined": "",
+      "undefined_display": "",
+      "neodash_entity_name_display": "Transocean Ltd.",
+      "neodash_person_name": "Donald Trump",
+      "neodash_entity_name": "Transocean Ltd."
+    },
+    "theme": "light"
+  },
+  "pages": [
+    {
+      "title": "Main Page",
+      "reports": [
+        {
+          "id": "a50f489d-1f4f-4e51-9d96-223f60af5b3f",
+          "title": "Top Contributors (in USD)",
+          "query": "MATCH (donor:Person)-[e:DONATED_TO]->(recipient)\nWHERE recipient.name =  $neodash_person_name\nAND donor.name <> $neodash_person_name\n  and e.amount > 0\nRETURN donor.name, toFloat(e.amount) AS Amount\norder by Amount desc\nlimit 10",
+          "width": 10,
+          "height": 5,
+          "x": 0,
+          "y": 2,
+          "type": "bar",
+          "selection": {
+            "index": "donor.name",
+            "value": "Amount",
+            "key": "(none)"
+          },
+          "settings": {
+            "frozen": false,
+            "nodePositions": {},
+            "marginBottom": 60
+          },
+          "schema": []
+        },
+        {
+          "id": "c27c6c54-9019-48f9-8a91-8d49796a49fb",
+          "title": "Company Relationships",
+          "query": "MATCH (p:Entity {name:  $neodash_person_name})-[*1..3]->(o:Org)\nRETURN o.name AS Company, count(*) AS Frequency\nORDER BY Frequency desc\nLIMIT 15",
+          "width": 12,
+          "height": 5,
+          "x": 10,
+          "y": 2,
+          "type": "bar",
+          "selection": {
+            "index": "Company",
+            "value": "Frequency",
+            "key": "(none)"
+          },
+          "settings": {
+            "valueScale": "linear",
+            "marginLeft": 80,
+            "marginBottom": 100,
+            "minValue": 0,
+            "positionLabel": "top"
+          },
+          "schema": []
+        },
+        {
+          "id": "9152beaf-59d5-404e-abc3-99d8be1f05f1",
+          "title": "Politician ",
+          "query": "MATCH (n:`Person`) \nWHERE toLower(toString(n.`name`)) CONTAINS toLower($input) \nRETURN DISTINCT n.`name` as value,  n.`name` as display ORDER BY size(toString(value)) ASC LIMIT 5",
+          "width": 10,
+          "height": 2,
+          "x": 0,
+          "y": 0,
+          "type": "select",
+          "selection": {},
+          "settings": {
+            "actionsRules": [
+              {
+                "condition": "Click",
+                "field": "",
+                "value": "",
+                "customization": "set variable",
+                "customizationValue": ""
+              }
+            ],
+            "type": "Node Property",
+            "entityType": "Person",
+            "propertyType": "name",
+            "propertyTypeDisplay": "name",
+            "parameterName": "neodash_person_name"
+          },
+          "schema": []
+        },
+        {
+          "id": "fbc8eebd-b359-4a2e-b6d9-63b420c38847",
+          "title": "Relationship count",
+          "query": "MATCH (person) - [r] - (entity)\nWHERE person.name = $neodash_person_name\nRETURN count(r) as rel_count\n\n\n",
+          "width": 5,
+          "height": 2,
+          "x": 10,
+          "y": 0,
+          "type": "value",
+          "selection": {},
+          "settings": {
+            "textAlign": "center"
+          },
+          "schema": []
+        },
+        {
+          "id": "b1a7df63-8b86-4764-9680-19214899c412",
+          "title": "Total recieved donations (USD)",
+          "query": "MATCH (person) <-[r:DONATED_TO]-(entity)\nWHERE person.name=$neodash_person_name\n  and entity.name <>$neodash_person_name\nRETURN sum(r.amount) as Amount\n\n\n",
+          "width": 7,
+          "height": 2,
+          "x": 15,
+          "y": 0,
+          "type": "value",
+          "selection": {},
+          "settings": {
+            "textAlign": "center"
+          },
+          "schema": []
+        }
+      ]
+    },
+    {
+      "title": "Lobbying",
+      "reports": [
+        {
+          "id": "04eff644-8af9-4504-909c-4345fb4b84dc",
+          "title": "Top 15 lobbying companies (by report count)",
+          "query": "\nmatch (e:Entity) - [r:HAS_REPORT] - (report)\nreturn e.name, count(r) as Count\norder by Count desc\nlimit 15\n\n",
+          "width": 14,
+          "height": 5,
+          "x": 0,
+          "y": 0,
+          "type": "bar",
+          "selection": {
+            "index": "e.name",
+            "value": "Count",
+            "key": "(none)"
+          },
+          "settings": {
+            "layout": "horizontal",
+            "marginBottom": 25,
+            "marginLeft": 180,
+            "customDimensions": false,
+            "marginRight": 80,
+            "displayYAxis": true,
+            "colors": "set2"
+          },
+          "schema": []
+        },
+        {
+          "id": "f3ad6636-df1f-40a0-8f21-4ce29cf4396f",
+          "title": "Lobbying by category",
+          "query": "MATCH (i:Issue)\nRETURN i.description AS Issue, count(*) AS Frequency\nlimit 10\n\n\n",
+          "width": 10,
+          "height": 5,
+          "x": 14,
+          "y": 0,
+          "type": "bar",
+          "selection": {
+            "index": "Issue",
+            "value": "Frequency",
+            "key": "(none)"
+          },
+          "settings": {
+            "interactive": true,
+            "marginLeft": 50,
+            "legend": false,
+            "sortByValue": false,
+            "marginBottom": 150,
+            "positionLabel": "top",
+            "enableArcLinkLabels": true,
+            "refreshButtonEnabled": true,
+            "borderWidth": 1,
+            "activeOuterRadiusOffset": 100,
+            "arcLabelsFontSize": 8,
+            "layout": "vertical",
+            "marginTop": 24,
+            "marginRight": 80,
+            "barValues": true,
+            "hideSelections": true,
+            "displayYAxis": false,
+            "colors": "set2"
+          },
+          "schema": []
+        },
+        {
+          "id": "1560e704-9001-46ff-a91e-ba1f5366adaf",
+          "title": "Lobbying amounts (by year) - USD",
+          "query": "\nMATCH (r:LobbyingReport)\nWHERE r.year IS NOT NULL AND r.amount IS NOT NULL \n  and r.year <> 2024\nRETURN r.year AS Year, sum(r.amount) AS Total_Lobbying\nORDER BY Year\n\n\n",
+          "width": 12,
+          "height": 4,
+          "x": 0,
+          "y": 5,
+          "type": "line",
+          "selection": {
+            "x": "Year",
+            "value": [
+              "Total_Lobbying"
+            ]
+          },
+          "settings": {
+            "marginLeft": 80,
+            "xScale": "point",
+            "yScale": "linear",
+            "minYValue": 0,
+            "marginTop": 50
+          },
+          "schema": []
+        },
+        {
+          "id": "dd08ae72-4755-491f-aa8c-762d6997d678",
+          "title": "Lobbying count (by year)",
+          "query": "MATCH (r:LobbyingReport)\nWHERE r.year IS NOT NULL \n  AND r.year < 2024 \n  and r.amount IS NOT NULL\nRETURN r.year AS Year, count(r.report_uuid) AS Count\nORDER BY Year\n\n\n\n",
+          "width": 12,
+          "height": 4,
+          "x": 12,
+          "y": 5,
+          "type": "line",
+          "selection": {
+            "x": "Year",
+            "value": [
+              "Count"
+            ]
+          },
+          "settings": {
+            "marginLeft": 80,
+            "marginTop": 50,
+            "curve": "linear",
+            "xScale": "point"
+          },
+          "schema": []
+        }
+      ]
+    },
+    {
+      "title": "Pathfinding",
+      "reports": [
+        {
+          "id": "fc5598fd-976c-40f3-ac0c-691b628ba8ac",
+          "title": "Pathfinder",
+          "query": "MATCH path = (a:Entity {name: $neodash_person_name})-[*1..4]-(b:Entity {name: $neodash_entity_name})\nWHERE size([n IN nodes(path) WHERE n.name = $neodash_person_name]) = 1\nRETURN path\nLIMIT 100\n",
+          "width": 17,
+          "height": 6,
+          "x": 6,
+          "y": 0,
+          "type": "graph",
+          "selection": {
+            "Entity": "name",
+            "Person": "name",
+            "Org": "name",
+            "Client": "name"
+          },
+          "settings": {
+            "nodeColorScheme": "accent",
+            "frozen": false,
+            "nodePositions": {}
+          },
+          "schema": [
+            [
+              "Entity",
+              "types_other",
+              "aliases",
+              "name",
+              "description",
+              "links",
+              "id",
+              "source",
+              "type",
+              "updated"
+            ],
+            [
+              "Person",
+              "types_other",
+              "aliases",
+              "name",
+              "description",
+              "links",
+              "id",
+              "source",
+              "type",
+              "updated"
+            ],
+            [
+              "Org",
+              "types_other",
+              "aliases",
+              "name",
+              "description",
+              "links",
+              "id",
+              "source",
+              "type",
+              "updated"
+            ],
+            [
+              "Client",
+              "types_other",
+              "aliases",
+              "name",
+              "description",
+              "links",
+              "id",
+              "source",
+              "type",
+              "updated"
+            ]
+          ]
+        },
+        {
+          "id": "2bced29f-5859-4d17-8e42-7bf35e0f4c5c",
+          "title": "Source",
+          "query": "MATCH (n:`Person`) \nWHERE toLower(toString(n.`name`)) CONTAINS toLower($input) \nRETURN DISTINCT n.`name` as value,  n.`name` as display ORDER BY size(toString(value)) ASC LIMIT 5",
+          "width": 6,
+          "height": 2,
+          "x": 0,
+          "y": 2,
+          "type": "select",
+          "selection": {},
+          "settings": {
+            "type": "Node Property",
+            "entityType": "Person",
+            "propertyType": "name",
+            "propertyTypeDisplay": "name",
+            "parameterName": "neodash_person_name"
+          },
+          "schema": []
+        },
+        {
+          "id": "b5d83465-3df6-44aa-aaf8-c9f40a8b8a33",
+          "title": "Target",
+          "query": "MATCH (n:`Entity`) \nWHERE toLower(toString(n.`name`)) CONTAINS toLower($input) \nRETURN DISTINCT n.`name` as value,  n.`name` as display ORDER BY size(toString(value)) ASC LIMIT 5",
+          "width": 6,
+          "height": 2,
+          "x": 0,
+          "y": 4,
+          "type": "select",
+          "selection": {},
+          "settings": {
+            "type": "Node Property",
+            "entityType": "Entity",
+            "propertyType": "name",
+            "propertyTypeDisplay": "name",
+            "parameterName": "neodash_entity_name"
+          },
+          "schema": []
+        },
+        {
+          "id": "2fcbd5be-34eb-4231-9e6f-b0dcb358a2f2",
+          "title": "Query builder",
+          "query": "RETURN \n\"MATCH path = (a:Entity {name: '\" + $neodash_person_name + \"'})-[*1..4]-(b:Entity {name: '\" + $neodash_entity_name + \"'})\\n\" +\n\"WHERE size([n IN nodes(path) WHERE n.name = '\" + $neodash_person_name + \"']) = 1\\n\" +\n\"RETURN path LIMIT 100\"\n",
+          "width": 23,
+          "height": 2,
+          "x": 0,
+          "y": 7,
+          "type": "value",
+          "selection": {},
+          "settings": {
+            "description": "Query Builder",
+            "fontSize": 20
+          },
+          "schema": []
+        },
+        {
+          "id": "ae062c59-30b5-43f9-86fb-990505e4d294",
+          "title": "Description",
+          "query": "#\nSelect __Source__ and __Target__ entites to display path up to 4 levels deep with no cycle relationships.\n\n\n\n\n\n\n",
+          "width": 6,
+          "height": 2,
+          "x": 0,
+          "y": 0,
+          "type": "text",
+          "selection": {},
+          "settings": {},
+          "schema": []
+        }
+      ]
+    }
+  ],
+  "parameters": {},
+  "extensions": {
+    "active": true,
+    "activeReducers": [],
+    "actions": {
+      "active": true
+    },
+    "query-translator": {},
+    "advanced-charts": {
+      "active": true
+    },
+    "forms": {
+      "active": true
+    }
+  },
+  "uuid": "5168a9cb-3409-421d-9904-9f9fb39ca4fe"
+}
